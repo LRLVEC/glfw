@@ -303,6 +303,22 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
 
 @implementation GLFWApplicationDelegate
 
+// Kudos to Michael Fogleman for posting this snippet in a GitHub issue
+// https://github.com/glfw/glfw/issues/1024#issuecomment-313891754
+- (BOOL)application:(NSApplication *)sender openFile:(NSString *)filename
+{
+    _GLFWwindow* window = _glfw.windowListHead;
+    if (window == nil) {
+        return NO;
+    }
+    char** paths = calloc(1, sizeof(char*));
+    paths[0] = strdup([filename UTF8String]);
+    _glfwInputDrop(window, 1, (const char**)paths);
+    free(paths[0]);
+    free(paths);
+    return YES;
+}
+
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
     _GLFWwindow* window;
