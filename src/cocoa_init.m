@@ -467,6 +467,9 @@ static GLFWbool initializeTIS(void)
         NSString* filename = [filenames objectAtIndex:i];
         const char* filenameStr = [filename UTF8String];
         _glfw.ns.openedFilenames[i] = _glfw_strdup(filenameStr);
+        if (_glfw.ns.openedFilenamesCallback) {
+            _glfw.ns.openedFilenamesCallback(_glfw.ns.openedFilenames[i]);
+        }
     }
 }
 
@@ -506,6 +509,8 @@ void* _glfwLoadLocalVulkanLoaderNS(void)
 int _glfwPlatformInit(void)
 {
     @autoreleasepool {
+
+    _glfw.ns.openedFilenamesCallback = NULL;
 
     _glfw.ns.helper = [[GLFWHelper alloc] init];
 
@@ -649,4 +654,9 @@ const char* _glfwPlatformGetVersionString(void)
 const char* const* glfwGetOpenedFilenames(void)
 {
     return (const char* const*) _glfw.ns.openedFilenames;
+}
+
+void glfwSetOpenedFilenamesCallback(GLFWopenedFilenamesFun callback)
+{
+    _glfw.ns.openedFilenamesCallback = callback;
 }
