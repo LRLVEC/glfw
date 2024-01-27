@@ -962,7 +962,7 @@ GLFWbool _glfwCreateWindowCocoa(_GLFWwindow* window,
     }
     else // let's set the contentView to CAMetalLayer
     {
-        printf("create window cocoa\n");
+        // printf("create window cocoa\n");
         NSBundle* bundle = [NSBundle bundleWithPath:@"/System/Library/Frameworks/QuartzCore.framework"];
         if (!bundle)
         {
