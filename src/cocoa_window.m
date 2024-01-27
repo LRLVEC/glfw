@@ -960,6 +960,47 @@ GLFWbool _glfwCreateWindowCocoa(_GLFWwindow* window,
         if (!_glfwRefreshContextAttribs(window, ctxconfig))
             return GLFW_FALSE;
     }
+    else // let's set the contentView to CAMetalLayer
+    {
+        printf("create window cocoa\n");
+        NSBundle* bundle = [NSBundle bundleWithPath:@"/System/Library/Frameworks/QuartzCore.framework"];
+        if (!bundle)
+        {
+            _glfwInputError(GLFW_PLATFORM_ERROR,
+                            "Cocoa: Failed to find QuartzCore.framework");
+            printf("no bundle\n");
+            return GLFW_FALSE;
+        }
+
+        window->ns.layer = [[bundle classNamed:@"CAMetalLayer"] layer];
+
+         if (!window->ns.layer)
+        {
+            _glfwInputError(GLFW_PLATFORM_ERROR,
+                            "Cocoa: Failed to create layer for view");
+            printf("no layer 1\n");
+            return GLFW_FALSE;
+        }
+
+        if (window->ns.retina)
+            [window->ns.layer setContentsScale:[window->ns.object backingScaleFactor]];
+
+        [window->ns.view setLayer:window->ns.layer];
+        [window->ns.view setWantsLayer:YES];
+        if (!window->ns.layer)
+        {
+            _glfwInputError(GLFW_PLATFORM_ERROR,
+                            "Cocoa: Failed to create layer for view");
+            printf("no layer 2\n");
+            return GLFW_FALSE;
+        }
+
+        if (window->ns.retina)
+            [window->ns.layer setContentsScale:[window->ns.object backingScaleFactor]];
+
+        [window->ns.view setLayer:window->ns.layer];
+        [window->ns.view setWantsLayer:YES];
+    }
 
     if (wndconfig->mousePassthrough)
         _glfwSetWindowMousePassthroughCocoa(window, GLFW_TRUE);
@@ -2053,6 +2094,23 @@ GLFWAPI id glfwGetCocoaWindow(GLFWwindow* handle)
 
     return window->ns.object;
 }
+
+
+GLFWAPI id glfwGetCocoaMetalLayer(GLFWwindow* handle)
+{
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+    _GLFW_REQUIRE_INIT_OR_RETURN(nil);
+
+    if (_glfw.platform.platformID != GLFW_PLATFORM_COCOA)
+    {
+        _glfwInputError(GLFW_PLATFORM_UNAVAILABLE,
+                        "Cocoa: Platform not initialized");
+        return NULL;
+    }
+
+    return window->ns.layer;
+}
+
 
 #endif // _GLFW_COCOA
 
